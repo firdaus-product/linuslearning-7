@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ms-MY">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nombor 11–20: Klik & Belajar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{box-sizing:border-box}
+    .number-card{transition:.2s}
+    .number-card:hover{transform:scale(1.05)}
+    .selected{outline:4px solid #3b82f6; transform:scale(1.06)}
+    .correct{background:#10b981 !important; color:#fff}
+    .dragging{opacity:.6; transform:rotate(3deg)}
+    .drop-zone{border:3px dashed #d1d5db; transition:.2s}
+    .drop-zone.drag-over{border-color:#3b82f6; background:#e0ecff}
+
+    /* label angka bawah slider */
+    .range-wrap{position:relative}
+    .range-labels{display:flex; justify-content:space-between; width:100%}
+    .range-labels button{min-width:24px}
+    input[type="range"]{width:100%}
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+  <div class="container mx-auto p-4 max-w-6xl">
+    <!-- Header -->
+    <header class="text-center mb-6">
+      <h1 class="text-4xl font-bold text-purple-800 mb-1">🔢 Nombor 11–20</h1>
+      <p class="text-lg text-gray-600">Klik & Belajar — tanpa soalan/kuiz</p>
+    </header>
+
+    <!-- Info Bar -->
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-6 rounded-lg shadow-md">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <span class="text-2xl mr-3">📚</span>
+          <span id="infoText" class="text-lg font-semibold text-gray-800">
+            Klik mana-mana elemen untuk belajar.
+          </span>
+        </div>
+        <button id="speakBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-full text-xl">
+          🔊
+        </button>
+      </div>
+    </div>
+
+    <!-- Activity Card -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 min-h-96">
+      <div id="activityContent" class="text-center">
+        <div class="text-6xl mb-4">🎯</div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Pilih Aktiviti untuk Mula Belajar!</h2>
+        <p class="text-lg text-gray-600">Klik butang aktiviti di bawah untuk bermula.</p>
+      </div>
+    </div>
+
+    <!-- Activity Buttons -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <button onclick="startActivity(1)" class="bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg text-lg font-bold">1️⃣ Klik Nombor</button>
+      <button onclick="startActivity(2)" class="bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg text-lg font-bold">2️⃣ Susun Tertib</button>
+      <button onclick="startActivity(3)" class="bg-purple-500 hover:bg-purple-600 text-white py-3 px-4 rounded-lg text-lg font-bold">3️⃣ Kira Objek</button>
+      <button onclick="startActivity(4)" class="bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg text-lg font-bold">4️⃣ Padankan</button>
+      <button onclick="startActivity(5)" class="bg-pink-500 hover:bg-pink-600 text-white py-3 px-4 rounded-lg text-lg font-bold">5️⃣ Urutan Nombor</button>
+    </div>
+
+    <!-- Control Buttons -->
+    <div class="flex justify-center gap-4">
+      <button onclick="clearActivity()" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-lg text-lg font-bold">🧹 Bersih</button>
+      <button onclick="nextChallenge()" class="bg-indigo-500 hover:bg-indigo-600 text-white py-2 px-6 rounded-lg text-lg font-bold">➡️ Seterusnya</button>
+    </div>
+  </div>
+
+  <script>
+    // ========= TTS =========
+    let ttsReady=false, currentVoice=null;
+    function prepareTTS(){
+      if(!('speechSynthesis' in window)) return;
+      const loadVoices=()=>{
+        const voices=speechSynthesis.getVoices();
+        currentVoice=voices.find(v=>v.lang.includes('ms')||v.lang.includes('MY'))||voices.find(v=>v.lang.startsWith('en'))||voices[0]||null;
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged=loadVoices;
+    }
+    function speak(text){
+      if(!ttsReady||!('speechSynthesis' in window)||!text) return;
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='ms-MY'; u.rate=0.85; u.pitch=1.05;
+      if(currentVoice) u.voice=currentVoice;
+      speechSynthesis.speak(u);
+    }
+    function setInfo(t){ document.getElementById('infoText').textContent=t; }
+    document.addEventListener('click',()=>{ if(!ttsReady){ speechSynthesis.speak(new SpeechSynthesisUtterance('')); ttsReady=true; } },{once:true});
+    document.getElementById('speakBtn').addEventListener('click',()=>speak(document.getElementById('infoText').textContent));
+    prepareTTS();
+
+    // ========= State & data =========
+    let currentActivity=0;
+    const words = {
+      11:'sebelas',12:'dua belas',13:'tiga belas',14:'empat belas',15:'lima belas',
+      16:'enam belas',17:'tujuh belas',18:'lapan belas',19:'sembilan belas',20:'dua puluh'
+    };
+
+    // ========= Aktiviti 1 =========
+    function activity1(){
+      const nums=[11,12,13,14,15,16,17,18,19,20];
+      const cards=nums.map(n=>`
+        <button class="number-card bg-blue-100 hover:bg-blue-200 p-5 rounded-xl text-center border-2 border-blue-300"
+                onclick="onNumberClick(${n}, this)">
+          <div class="text-3xl font-bold text-blue-800">${n}</div>
+          <div class="text-base text-blue-700 mt-1">${words[n]}</div>
+        </button>
+      `).join('');
+      document.getElementById('activityContent').innerHTML=`
+        <h2 class="text-3xl font-bold text-blue-800 mb-4 text-center">🎯 Klik Nombor untuk Dengar Sebutan</h2>
+        <div class="grid grid-cols-5 gap-3">${cards}</div>`;
+      setInfo('Sentuh mana-mana nombor untuk dengar sebutannya.');
+    }
+    function onNumberClick(n, el){
+      document.querySelectorAll('.number-card').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      setInfo(`Ini nombor ${words[n]}.`);
+      speak(`Nombor ${words[n]}`);
+    }
+
+    // ========= Aktiviti 2 =========
+    function activity2(){
+      const nums=[11,12,13,14,15,16,17,18,19,20];
+      const pool=nums.sort(()=>Math.random()-0.5).map(n=>`
+        <div class="number-card bg-green-100 p-3 rounded-lg text-center cursor-move border-2 border-green-300"
+             draggable="true" ondragstart="drag(event)" data-number="${n}">
+          <div class="text-2xl font-bold text-green-800">${n}</div>
+        </div>`).join('');
+      document.getElementById('activityContent').innerHTML=`
+        <h2 class="text-3xl font-bold text-green-800 mb-2 text-center">🔄 Susun Tertib (Pembelajaran)</h2>
+        <p class="text-center text-gray-600 mb-4">Seret nombor ke bar urutan. Sistem akan membaca urutan semasa.</p>
+        <div class="drop-zone bg-gray-50 p-3 rounded-lg min-h-[72px] flex flex-wrap gap-2 justify-center mb-3"
+             ondrop="dropToSeq(event)" ondragover="allowDrop(event)" id="seqZone">
+          <span class="text-gray-400 text-sm">Letak nombor di sini</span>
+        </div>
+        <div class="text-center mb-4">
+          <button onclick="readSequence()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">🔊 Baca Urutan</button>
+          <button onclick="clearSequence()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold ml-2">🔄 Kosongkan</button>
+        </div>
+        <h3 class="font-semibold mb-2">Kad nombor:</h3>
+        <div class="grid grid-cols-5 gap-2">${pool}</div>`;
+      setInfo('Seret nombor ke bar urutan untuk dengar susunannya.');
+    }
+    function drag(ev){ ev.dataTransfer.setData('text', ev.target.dataset.number); ev.target.classList.add('dragging'); }
+    function allowDrop(ev){ ev.preventDefault(); ev.target.closest('.drop-zone').classList.add('drag-over'); }
+    function dropToSeq(ev){
+      ev.preventDefault();
+      const zone=ev.target.closest('.drop-zone');
+      zone.classList.remove('drag-over');
+      const num=ev.dataTransfer.getData('text');
+      if(!num) return;
+      const chip=document.createElement('div');
+      chip.className='bg-white border border-green-300 rounded-lg px-3 py-2 text-lg font-bold';
+      chip.textContent=num;
+      zone.appendChild(chip);
+      const src=document.querySelector(`[data-number="${num}"]`); if(src) src.style.display='none';
+      setInfo(`Ditambah: ${num}. Tekan "Baca Urutan" untuk dengar susunan.`); speak(`Ditambah ${num}`);
+    }
+    function readSequence(){
+      const seq=[...document.querySelectorAll('#seqZone > div')].map(d=>d.textContent.trim()).filter(Boolean);
+      if(!seq.length){ setInfo('Tiada nombor dalam urutan. Seret nombor dahulu.'); speak('Seret nombor dahulu'); return; }
+      const frasa=`Urutan sekarang: ${seq.join(', ')}.`; setInfo(frasa); speak(frasa);
+    }
+    function clearSequence(){
+      const zone=document.getElementById('seqZone'); zone.innerHTML='<span class="text-gray-400 text-sm">Letak nombor di sini</span>';
+      document.querySelectorAll('[data-number]').forEach(x=>x.style.display='');
+      setInfo('Urutan dikosongkan.'); speak('Urutan dikosongkan');
+    }
+
+    // ========= Aktiviti 3 =========
+    function activity3(){
+      const counts=[11,12,13,14,15,16,17,18,19,20].sort(()=>Math.random()-0.5).slice(0,6);
+      const grid=counts.map(c=>`
+        <button class="bg-purple-100 hover:bg-purple-200 p-4 rounded-xl text-center border-2 border-purple-300"
+                onclick="sayCount(${c}, this)">
+          <div class="text-3xl mb-2">${'🍎'.repeat(c)}</div>
+          <div class="font-semibold text-purple-800">Klik untuk dengar jumlah</div>
+        </button>`).join('');
+      document.getElementById('activityContent').innerHTML=`
+        <h2 class="text-3xl font-bold text-purple-800 mb-3 text-center">🧮 Kira Objek</h2>
+        <p class="text-center text-gray-600 mb-4">Klik mana-mana kumpulan epal untuk dengar bilangannya.</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">${grid}</div>`;
+      setInfo('Klik kumpulan epal untuk mendengar bilangannya.');
+    }
+    function sayCount(c, el){
+      document.querySelectorAll('.number-card').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      const frasa=`Ada ${words[c] ?? c} epal.`; setInfo(frasa); speak(frasa);
+    }
+
+    // ========= Aktiviti 4 =========
+    let selectedMatch=null;
+    function activity4(){
+      const pairs=[11,15,18,20];
+      const left=pairs.map(n=>`
+        <button class="number-card bg-orange-100 p-4 rounded-lg text-center border-2 border-orange-300"
+                onclick="pickMatch('num', ${n}, this)">
+          <div class="text-2xl font-bold text-orange-800">${n}</div>
+        </button>`).join('');
+      const right=pairs.slice().sort(()=>Math.random()-0.5).map(n=>`
+        <button class="number-card bg-orange-100 p-4 rounded-lg text-center border-2 border-orange-300"
+                onclick="pickMatch('word', ${n}, this)">
+          <div class="text-lg font-bold text-orange-800">${words[n]}</div>
+        </button>`).join('');
+      document.getElementById('activityContent').innerHTML=`
+        <h2 class="text-3xl font-bold text-orange-800 mb-3 text-center">🔗 Nombor & Perkataan</h2>
+        <p class="text-center text-gray-600 mb-4">Klik nombor atau perkataan untuk mendengar. Jika padanan tepat, kedua-duanya akan bertukar hijau.</p>
+        <div class="grid grid-cols-2 gap-8">
+          <div><h3 class="text-center font-semibold mb-2">Nombor</h3><div class="space-y-3">${left}</div></div>
+          <div><h3 class="text-center font-semibold mb-2">Perkataan</h3><div class="space-y-3">${right}</div></div>
+        </div>`;
+      setInfo('Klik mana-mana butang untuk dengar. Padanan tepat akan ditandakan hijau.');
+      selectedMatch=null;
+    }
+    function pickMatch(kind, value, el){
+      const frasa = kind==='num' ? `Nombor ${words[value]}` : `Perkataan ${words[value]}`;
+      speak(frasa); setInfo(frasa);
+      if(!selectedMatch){ selectedMatch={kind,value,el}; el.classList.add('selected'); return; }
+      const a=selectedMatch, b={kind,value,el};
+      if(a.value===b.value && a.kind!==b.kind){
+        a.el.classList.remove('selected'); b.el.classList.remove('selected');
+        a.el.classList.add('correct'); b.el.classList.add('correct');
+        setInfo(`Padanan tepat: ${a.value} dan “${words[a.value]}”.`); speak('Bagus. Padanan tepat.');
+      }else{
+        a.el.classList.remove('selected'); b.el.classList.remove('selected');
+        setInfo(`Dipilih: ${a.kind==='num'?a.value:words[a.value]} dan ${b.kind==='num'?b.value:words[b.value]}.`);
+      }
+      selectedMatch=null;
+    }
+
+    // ========= Aktiviti 5 (Urutan Nombor) =========
+    let lastDetailText = ''; // simpan ayat detail semasa
+    function activity5(){
+      document.getElementById('activityContent').innerHTML=`
+        <h2 class="text-3xl font-bold text-pink-800 mb-3 text-center">🧭 Urutan Nombor</h2>
+        <p class="text-center text-gray-600 mb-4">Gerakkan slider 11–20. Sistem menyebut nombor; tekan “Penerangan” untuk ayat lengkap.</p>
+        <div class="max-w-3xl mx-auto bg-pink-50 border border-pink-200 rounded-xl p-5">
+          <div class="range-wrap">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-pink-700">11</span>
+              <input id="numSlider" type="range" min="11" max="20" value="11" class="mx-3" oninput="onSlideChange(this.value)">
+              <span class="text-sm text-pink-700">20</span>
+            </div>
+            <!-- label angka di bawah slider -->
+            <div id="rangeLabels" class="range-labels text-pink-800 font-semibold mb-4"></div>
+          </div>
+          <div id="slideInfo" class="text-center text-xl font-extrabold text-pink-900"></div>
+          <div class="text-center mt-4 flex flex-wrap gap-2 justify-center">
+            <button onclick="speakDetail()" class="bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg">ℹ️ Penerangan</button>
+            <button onclick="playSequence(true)" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg">▶️ Main Naik</button>
+            <button onclick="playSequence(false)" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg">▶️ Main Turun</button>
+          </div>
+        </div>`;
+      // bina label 11..20
+      const labels=document.getElementById('rangeLabels');
+      let html='';
+      for(let n=11;n<=20;n++){
+        html+=`<button class="text-sm px-1 py-0.5 rounded hover:bg-pink-200 focus:bg-pink-300"
+                      onclick="setSlider(${n})" aria-label="Pilih nombor ${n}">${n}</button>`;
+      }
+      labels.innerHTML=html;
+      setInfo('Gerakkan slider atau klik nombor di bawah slider untuk memilih. Sistem menyebut nombor sahaja.');
+      onSlideChange(11);
+    }
+    function setSlider(v){
+      const s=document.getElementById('numSlider'); if(!s) return;
+      s.value=v; onSlideChange(v);
+    }
+    function onSlideChange(v){
+      v=parseInt(v,10);
+      const prev=v-1, next=v+1;
+      // ayat detail (disimpan, tidak auto-dibaca)
+      lastDetailText = v===11 ? `Sebelas ialah permulaan julat; selepasnya ${words[next]}.`
+                    : v===20 ? `Dua puluh ialah hujung julat; sebelumnya ${words[prev]}.`
+                    : `${words[v]} datang selepas ${words[prev]} dan sebelum ${words[next]}.`;
+      // paparan + sebut nombor ringkas sahaja
+      document.getElementById('slideInfo').textContent = `${v} — ${lastDetailText}`;
+      setInfo(`Nombor ${words[v]}.`);           // info ringkas
+      speak(`Nombor ${words[v]}`);              // audio ringkas
+    }
+    function speakDetail(){
+      if(!lastDetailText){ return; }
+      speak(lastDetailText);
+      setInfo(lastDetailText);
+    }
+    async function playSequence(asc=true){
+      const order = asc ? [11,12,13,14,15,16,17,18,19,20] : [20,19,18,17,16,15,14,13,12,11];
+      for(const n of order){
+        setSlider(n);            // sebut nombor ringkas
+        await new Promise(r=>setTimeout(r,800));
+      }
+    }
+
+    // ========= Main =========
+    function startActivity(n){
+      currentActivity=n;
+      switch(n){
+        case 1: activity1(); break;
+        case 2: activity2(); break;
+        case 3: activity3(); break;
+        case 4: activity4(); break;
+        case 5: activity5(); break;
+      }
+    }
+    function clearActivity(){
+      currentActivity=0;
+      document.getElementById('activityContent').innerHTML=`
+        <div class="text-center"><div class="text-6xl mb-4">🧹</div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Aktiviti dibersihkan</h2>
+        <p class="text-lg text-gray-600">Pilih aktiviti baharu untuk teruskan belajar.</p></div>`;
+      setInfo('Aktiviti dibersihkan. Pilih aktiviti baharu.');
+    }
+    function nextChallenge(){
+      if(!currentActivity){ setInfo('Pilih aktiviti dahulu.'); speak('Pilih aktiviti dahulu'); return; }
+      startActivity(currentActivity);
+      setInfo('Contoh baharu dimuatkan. Teruskan belajar!'); speak('Contoh baharu dimuatkan.');
+    }
+    document.addEventListener('DOMContentLoaded',()=>setInfo('Selamat datang! Pilih aktiviti untuk mula belajar nombor 11 hingga 20.'));
+  </script>
+</body>
+</html>
