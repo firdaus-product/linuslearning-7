@@ -1,444 +1,537 @@
 <!DOCTYPE html>
-<html lang="ms-MY">
+<html lang="ms-MY" class="overflow-hidden overscroll-none">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nombor 11–20: Klik & Belajar</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nombor 11–20: Klik & Belajar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <style>
-    /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
-    body { 
-        font-family: 'Fredoka', sans-serif; 
-        background-color: #f0fdf4; 
-        background-image: radial-gradient(#86efac 2px, transparent 2px); 
-        background-size: 30px 30px; 
-    }
-    
-    .game-card { 
-        background: white; 
-        border: 4px solid #475569; 
-        box-shadow: 8px 8px 0px #00000020; 
-        border-radius: 1.5rem; 
-        min-height: 600px; 
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        overflow: hidden; 
-    }
-    
-    /* Buttons */
-    .btn-3d { 
-        transition: all 0.1s; 
-        border-bottom-width: 6px; 
-        border-color: rgba(0,0,0,0.2); 
-        transform: translateY(0); 
-        cursor: pointer; 
-        display: inline-block; 
-    }
-    .btn-3d:active:not(:disabled) { transform: translateY(4px); border-bottom-width: 2px; box-shadow: none; }
-    .btn-3d:disabled { opacity: 0.6; cursor: not-allowed; border-bottom-width: 6px; filter: grayscale(100%); }
+    <style>
+        /* --- UI STYLE (MASTER REFERENCE - TEMA HIJAU) --- */
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#86efac 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
 
-    /* Animations */
-    .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-    
-    /* Drag & Drop Styles */
-    .draggable { cursor: grab; touch-action: none; }
-    .draggable:active { cursor: grabbing; opacity: 0.6; transform: scale(1.05) rotate(3deg); }
-    .drop-zone { transition: all 0.2s; border: 4px dashed #cbd5e1; background: #f8fafc; }
-    .drop-zone.drag-over { background: #dbeafe; border-color: #3b82f6; transform: scale(1.02); }
+        .game-card {
+            background: white;
+            border: 4px solid #475569;
+            box-shadow: 8px 8px 0px #00000020;
+            border-radius: 1.5rem;
+            /* min-height: 600px; REMOVED */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    /* Custom Slider Style for Act 5 */
-    input[type=range] {
-      -webkit-appearance: none; width: 100%; background: transparent;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; height: 30px; width: 30px; border-radius: 50%;
-      background: #db2777; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      cursor: pointer; margin-top: -12px;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%; height: 8px; cursor: pointer; background: #fbcfe8; border-radius: 5px; border: 1px solid #f9a8d4;
-    }
+        /* Buttons */
+        .btn-3d {
+            transition: all 0.1s;
+            border-bottom-width: 6px;
+            border-color: rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            cursor: pointer;
+            display: inline-block;
+        }
 
-    /* Activity Specific */
-    .num-card { transition: all 0.2s; }
-    .num-card:hover { transform: scale(1.05); z-index: 10; }
-    .num-card.selected { background-color: #fef08a; border-color: #eab308; transform: scale(1.1); z-index: 20; }
-    .num-card.correct { background-color: #86efac !important; border-color: #16a34a !important; color: #064e3b !important; transform: scale(0.95); opacity: 0.8; }
-  </style>
+        .btn-3d:active:not(:disabled) {
+            transform: translateY(4px);
+            border-bottom-width: 2px;
+            box-shadow: none;
+        }
+
+        .btn-3d:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-bottom-width: 6px;
+            filter: grayscale(100%);
+        }
+
+        /* Animations */
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Drag & Drop Styles */
+        .draggable {
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+            opacity: 0.6;
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        .drop-zone {
+            transition: all 0.2s;
+            border: 4px dashed #cbd5e1;
+            background: #f8fafc;
+        }
+
+        .drop-zone.drag-over {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        /* Custom Slider Style for Act 5 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            background: #db2777;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            margin-top: -12px;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #fbcfe8;
+            border-radius: 5px;
+            border: 1px solid #f9a8d4;
+        }
+
+        /* Activity Specific */
+        .num-card {
+            transition: all 0.2s;
+        }
+
+        .num-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .num-card.selected {
+            background-color: #fef08a;
+            border-color: #eab308;
+            transform: scale(1.1);
+            z-index: 20;
+        }
+
+        .num-card.correct {
+            background-color: #86efac !important;
+            border-color: #16a34a !important;
+            color: #064e3b !important;
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+    </style>
 </head>
-<body class="min-h-screen text-slate-800 pb-10">
 
-  <div class="fixed top-4 left-0 right-0 z-50 px-4 pointer-events-none">
-    <div class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl animate-bounce">🔢</span>
-        <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Nombor 11–20</span>
-      </div>
-      <button id="speak-btn" onclick="speakInfo()" class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+<body class="h-screen w-screen overflow-hidden text-slate-800 flex flex-col overscroll-none">
+
+    <div class="flex-none p-4 z-50 pointer-events-none w-full">
+        <div
+            class="max-w-4xl mx-auto bg-green-400 border-4 border-green-600 rounded-full px-6 py-3 shadow-xl flex items-center justify-between pointer-events-auto transform hover:scale-[1.01] transition-transform">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl animate-bounce">🔢</span>
+                <span id="info-text" class="text-xl font-bold text-green-900 leading-none mt-1">Nombor 11–20</span>
+            </div>
+            <button id="speak-btn" onclick="speakInfo()"
+                class="bg-white hover:bg-green-50 text-green-600 border-2 border-green-200 rounded-full p-2 transition-colors shadow-sm">🔊</button>
+        </div>
     </div>
-  </div>
-  <div class="h-24"></div>
 
-  <div class="max-w-6xl mx-auto p-4">
-    
-    <div class="game-card p-8 mb-8">
-        <div id="activity-content" class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
-            <div class="py-10 text-center">
-                <div class="text-8xl mb-6 animate-pulse">🎯</div>
-                <h2 class="text-5xl font-bold text-emerald-600 mb-4">Nombor 11–20</h2>
-                <p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih aktiviti di bawah untuk mula belajar.</p>
-                <div class="text-4xl animate-bounce">👇</div>
+    <div class="flex-1 w-full max-w-6xl mx-auto p-2 flex flex-col min-h-0">
+
+        <div class="game-card p-2 mb-2 flex-1 w-full">
+            <div id="activity-content"
+                class="w-full relative z-10 flex flex-col items-center justify-center h-full transition-opacity duration-200">
+                <div class="py-10 text-center">
+                    <div class="text-8xl mb-6 animate-pulse">🎯</div>
+                    <h2 class="text-5xl font-bold text-emerald-600 mb-4">Nombor 11–20</h2>
+                    <p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih aktiviti di bawah untuk mula belajar.
+                    </p>
+                    <div class="text-4xl animate-bounce">👇</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-none bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-2 border-2 border-white">
+            <h3 class="text-lg font-bold text-slate-700 mb-1 text-center">🎮 Pilih Aktiviti</h3>
+
+            <div class="grid grid-cols-5 gap-2 mb-2">
+                <button onclick="loadActivity(1)"
+                    class="btn-3d bg-blue-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">1️⃣
+                    Klik</button>
+                <button onclick="loadActivity(2)"
+                    class="btn-3d bg-green-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔄
+                    Susun</button>
+                <button onclick="loadActivity(3)"
+                    class="btn-3d bg-purple-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🧮
+                    Kira</button>
+                <button onclick="loadActivity(4)"
+                    class="btn-3d bg-orange-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🔗
+                    Padan</button>
+                <button onclick="loadActivity(5)"
+                    class="btn-3d bg-pink-500 text-white font-bold py-2 px-1 rounded-xl text-sm md:text-base">🧭
+                    Slider</button>
+            </div>
+
+            <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-2">
+                <button onclick="clearActivity()"
+                    class="btn-3d bg-slate-400 text-white font-bold py-1 px-4 rounded-full text-base">🏠 Menu</button>
+                <button onclick="nextActivity()"
+                    class="btn-3d bg-indigo-500 text-white font-bold py-1 px-6 rounded-full text-lg">Seterusnya
+                    ➡️</button>
             </div>
         </div>
     </div>
 
-    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg p-6 border-2 border-white">
-      <h3 class="text-2xl font-bold text-slate-700 mb-4 text-center">🎮 Pilih Aktiviti</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <button onclick="loadActivity(1)" class="btn-3d bg-blue-500 text-white font-bold py-4 px-2 rounded-xl text-lg">1️⃣ Klik Nombor</button>
-        <button onclick="loadActivity(2)" class="btn-3d bg-green-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔄 Susun Tertib</button>
-        <button onclick="loadActivity(3)" class="btn-3d bg-purple-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧮 Kira Objek</button>
-        <button onclick="loadActivity(4)" class="btn-3d bg-orange-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🔗 Padankan</button>
-        <button onclick="loadActivity(5)" class="btn-3d bg-pink-500 text-white font-bold py-4 px-2 rounded-xl text-lg">🧭 Urutan Slider</button>
-      </div>
+    <script>
+        /* --- STANDARD HELPERS (FROM MASTER) --- */
+        let currentActivity = 0;
+        let ttsEnabled = false;
+        let currentInfo = "Pilih aktiviti untuk mula belajar!";
 
-      <div class="flex justify-center gap-4 border-t-2 border-slate-100 pt-6">
-        <button onclick="clearActivity()" class="btn-3d bg-slate-400 text-white font-bold py-2 px-6 rounded-full text-lg">🏠 Menu</button>
-        <button onclick="nextActivity()" class="btn-3d bg-indigo-500 text-white font-bold py-2 px-8 rounded-full text-xl">Seterusnya ➡️</button>
-      </div>
-    </div>
-  </div>
+        // Data Nombor
+        const words = {
+            11: 'sebelas', 12: 'dua belas', 13: 'tiga belas', 14: 'empat belas', 15: 'lima belas',
+            16: 'enam belas', 17: 'tujuh belas', 18: 'lapan belas', 19: 'sembilan belas', 20: 'dua puluh'
+        };
 
-  <script>
-    /* --- STANDARD HELPERS (FROM MASTER) --- */
-    let currentActivity = 0;
-    let ttsEnabled = false;
-    let currentInfo = "Pilih aktiviti untuk mula belajar!";
-    
-    // Data Nombor
-    const words = {
-      11:'sebelas',12:'dua belas',13:'tiga belas',14:'empat belas',15:'lima belas',
-      16:'enam belas',17:'tujuh belas',18:'lapan belas',19:'sembilan belas',20:'dua puluh'
-    };
+        function speak(text) {
+            if (!ttsEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.90; u.pitch = 1.05;
+            const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms'));
+            if (ms) u.voice = ms;
+            window.speechSynthesis.speak(u);
+        }
 
-    function speak(text) { 
-        if (!ttsEnabled || !('speechSynthesis' in window)) return; 
-        window.speechSynthesis.cancel(); 
-        const u = new SpeechSynthesisUtterance(text); u.lang = 'ms-MY'; u.rate = 0.90; u.pitch = 1.05; 
-        const ms = window.speechSynthesis.getVoices().find(v => v.lang === 'ms-MY' || v.lang?.startsWith('ms')); 
-        if (ms) u.voice = ms; 
-        window.speechSynthesis.speak(u); 
-    }
-    
-    function setInfo(text) { 
-        currentInfo = text; const infoEl = document.getElementById('info-text'); 
-        infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200); 
-    }
-    
-    function speakInfo() { 
-        if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); } 
-        speak(currentInfo); 
-    }
+        function setInfo(text) {
+            currentInfo = text; const infoEl = document.getElementById('info-text');
+            infoEl.style.opacity = 0; setTimeout(() => { infoEl.textContent = text; infoEl.style.opacity = 1; }, 200);
+        }
 
-    function triggerWin() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
+        function speakInfo() {
+            if (!ttsEnabled) { ttsEnabled = true; document.getElementById('speak-btn').classList.add('bg-green-100', 'text-green-600'); }
+            speak(currentInfo);
+        }
 
-    /* --- ROUTER --- */
-    function loadActivity(n) {
-      currentActivity = n;
-      const content = document.getElementById('activity-content');
-      content.style.opacity = 0;
-      setTimeout(() => {
-          if (n === 1) setupAct1(content);
-          else if (n === 2) setupAct2(content);
-          else if (n === 3) setupAct3(content);
-          else if (n === 4) setupAct4(content);
-          else if (n === 5) setupAct5(content);
-          content.style.opacity = 1; 
-      }, 200);
-    }
+        function triggerWin() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
-    function clearActivity() {
-        currentActivity = 0;
-        document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🎯</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Nombor 11–20</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih butang di bawah.</p></div>`;
-        setInfo("Pilih aktiviti di bawah.");
-    }
-    
-    function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
+        /* --- ROUTER --- */
+        function loadActivity(n) {
+            currentActivity = n;
+            const content = document.getElementById('activity-content');
+            content.style.opacity = 0;
+            setTimeout(() => {
+                if (n === 1) setupAct1(content);
+                else if (n === 2) setupAct2(content);
+                else if (n === 3) setupAct3(content);
+                else if (n === 4) setupAct4(content);
+                else if (n === 5) setupAct5(content);
+                content.style.opacity = 1;
+            }, 200);
+        }
+
+        function clearActivity() {
+            currentActivity = 0;
+            document.getElementById('activity-content').innerHTML = `<div class="py-10 text-center"><div class="text-8xl mb-6 animate-pulse">🎯</div><h2 class="text-5xl font-bold text-emerald-600 mb-4">Nombor 11–20</h2><p class="text-2xl text-slate-500 mb-8 font-semibold">Pilih butang di bawah.</p></div>`;
+            setInfo("Pilih aktiviti di bawah.");
+        }
+
+        function nextActivity() { let next = currentActivity + 1; if (next > 5) next = 1; loadActivity(next); }
 
 
-    /* =========================================
-       LOGIK AKTIVITI (DIPORT & DISESUAIKAN)
-       ========================================= */
+        /* =========================================
+           LOGIK AKTIVITI (DIPORT & DISESUAIKAN)
+           ========================================= */
 
-    /* --- 1. Klik Nombor --- */
-    function setupAct1(content) {
-        setInfo("Klik nombor untuk dengar sebutannya.");
-        const nums = [11,12,13,14,15,16,17,18,19,20];
-        
-        content.innerHTML = `
+        /* --- 1. Klik Nombor --- */
+        function setupAct1(content) {
+            setInfo("Klik nombor untuk dengar sebutannya.");
+            const nums = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+            content.innerHTML = `
             <div class="w-full max-w-5xl text-center">
-                <h3 class="text-3xl font-bold text-blue-600 mb-6">1️⃣ Klik & Sebut</h3>
-                <div class="grid grid-cols-5 gap-4 mb-8">
+                <h3 class="text-3xl font-bold text-blue-600 mb-4">1️⃣ Klik & Sebut</h3>
+                <div class="grid grid-cols-5 gap-2 mb-4">
                     ${nums.map(n => `
-                        <button onclick="clickNum(${n}, this)" class="num-card btn-3d bg-blue-100 text-blue-800 font-black text-3xl py-6 rounded-2xl border-blue-300 hover:bg-blue-200 flex flex-col items-center">
+                        <button onclick="clickNum(${n}, this)" class="num-card btn-3d bg-blue-100 text-blue-800 font-black text-2xl py-4 rounded-xl border-blue-300 hover:bg-blue-200 flex flex-col items-center">
                             <span>${n}</span>
-                            <span class="text-sm font-normal text-blue-600 mt-1 opacity-70">${words[n]}</span>
+                            <span class="text-xs font-normal text-blue-600 mt-1 opacity-70">${words[n]}</span>
                         </button>
                     `).join('')}
                 </div>
             </div>
         `;
-    }
-    window.clickNum = function(n, el) {
-        document.querySelectorAll('.num-card').forEach(x => x.classList.remove('selected'));
-        el.classList.add('selected');
-        const msg = `Ini nombor ${words[n]}.`;
-        setInfo(msg); speak(`Nombor ${words[n]}`);
-    }
+        }
+        window.clickNum = function (n, el) {
+            document.querySelectorAll('.num-card').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
+            const msg = `Ini nombor ${words[n]}.`;
+            setInfo(msg); speak(`Nombor ${words[n]}`);
+        }
 
-    /* --- 2. Susun Tertib (Drag & Drop) --- */
-    function setupAct2(content) {
-        setInfo("Seret nombor ke kotak hijau.");
-        const nums = [11,12,13,14,15,16,17,18,19,20];
-        // Shuffle simple
-        const pool = nums.sort(() => Math.random() - 0.5);
+        /* --- 2. Susun Tertib (Drag & Drop) --- */
+        function setupAct2(content) {
+            setInfo("Seret nombor ke kotak hijau.");
+            const nums = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            // Shuffle simple
+            const pool = nums.sort(() => Math.random() - 0.5);
 
-        content.innerHTML = `
+            content.innerHTML = `
             <div class="w-full max-w-5xl text-center">
                 <h3 class="text-3xl font-bold text-green-600 mb-2">🔄 Susun Tertib</h3>
-                <p class="text-slate-500 mb-6">Seret kad ke kotak hijau untuk bina urutan.</p>
+                <p class="text-slate-500 mb-2 font-bold text-sm">Seret kad ke kotak hijau untuk bina urutan.</p>
 
-                <div class="drop-zone min-h-[100px] rounded-2xl flex flex-wrap gap-3 justify-center items-center p-4 mb-6 border-green-300 bg-green-50"
+                <div class="drop-zone min-h-[80px] rounded-2xl flex flex-wrap gap-2 justify-center items-center p-2 mb-2 border-green-300 bg-green-50"
                      ondrop="dropToSeq(event)" ondragover="allowDrop(event)" id="seqZone">
-                     <span class="text-green-400 font-bold pointer-events-none">Seret ke sini...</span>
+                     <span class="text-green-400 font-bold pointer-events-none text-sm">Seret ke sini...</span>
                 </div>
 
-                <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <div class="flex flex-wrap justify-center gap-2 mb-4">
                     ${pool.map(n => `
                         <div draggable="true" ondragstart="dragStart(event)" data-number="${n}" 
-                             class="draggable btn-3d bg-white text-green-700 w-16 h-16 rounded-xl text-2xl font-bold flex items-center justify-center border-green-200 shadow-sm">
+                             class="draggable btn-3d bg-white text-green-700 w-12 h-12 rounded-lg text-xl font-bold flex items-center justify-center border-green-200 shadow-sm">
                             ${n}
                         </div>
                     `).join('')}
                 </div>
 
                 <div class="flex gap-4 justify-center">
-                     <button onclick="readSequence()" class="btn-3d bg-green-500 text-white px-6 py-2 rounded-lg font-bold">🔊 Baca Urutan</button>
-                     <button onclick="setupAct2(document.getElementById('activity-content'))" class="btn-3d bg-slate-400 text-white px-6 py-2 rounded-lg font-bold">🔄 Reset</button>
+                     <button onclick="readSequence()" class="btn-3d bg-green-500 text-white px-4 py-1 rounded-lg font-bold text-sm">🔊 Baca</button>
+                     <button onclick="setupAct2(document.getElementById('activity-content'))" class="btn-3d bg-slate-400 text-white px-4 py-1 rounded-lg font-bold text-sm">🔄 Reset</button>
                 </div>
             </div>
         `;
-    }
-    window.dragStart = function(ev) {
-        ev.dataTransfer.setData('text', ev.target.dataset.number);
-        ev.target.style.opacity = '0.4';
-    }
-    window.allowDrop = function(ev) { ev.preventDefault(); ev.target.closest('.drop-zone').classList.add('drag-over'); }
-    window.dropToSeq = function(ev) {
-        ev.preventDefault();
-        const zone = document.getElementById('seqZone');
-        zone.classList.remove('drag-over');
-        
-        // Remove placeholder text if exists
-        const span = zone.querySelector('span');
-        if(span) span.remove();
-
-        const num = ev.dataTransfer.getData('text');
-        if(!num) return;
-
-        // Create chip
-        const chip = document.createElement('div');
-        chip.className = 'bg-white border-2 border-green-500 text-green-800 rounded-lg px-4 py-3 text-2xl font-bold animate-popIn shadow-sm';
-        chip.textContent = num;
-        zone.appendChild(chip);
-
-        // Hide original
-        const src = document.querySelector(`[data-number="${num}"]`);
-        if(src) src.style.display = 'none';
-
-        setInfo(`Ditambah: ${num}.`); speak(num);
-    }
-    window.readSequence = function() {
-        const chips = document.querySelectorAll('#seqZone > div');
-        const seq = [...chips].map(d => d.textContent.trim());
-        
-        if (seq.length === 0) {
-            setInfo("Kotak kosong. Seret nombor dulu."); speak("Seret nombor dahulu.");
-        } else {
-            const txt = `Urutan ialah: ${seq.join(', ')}.`;
-            setInfo(txt); speak(txt);
-            if(seq.length >= 5) triggerWin();
         }
-    }
+        window.dragStart = function (ev) {
+            ev.dataTransfer.setData('text', ev.target.dataset.number);
+            ev.target.style.opacity = '0.4';
+        }
+        window.allowDrop = function (ev) { ev.preventDefault(); ev.target.closest('.drop-zone').classList.add('drag-over'); }
+        window.dropToSeq = function (ev) {
+            ev.preventDefault();
+            const zone = document.getElementById('seqZone');
+            zone.classList.remove('drag-over');
 
-    /* --- 3. Kira Objek (Epal) --- */
-    function setupAct3(content) {
-        setInfo("Klik kumpulan buah untuk kira.");
-        const counts = [11,12,13,14,15,16,17,18,19,20].sort(()=>Math.random()-0.5).slice(0,6);
+            // Remove placeholder text if exists
+            const span = zone.querySelector('span');
+            if (span) span.remove();
 
-        content.innerHTML = `
+            const num = ev.dataTransfer.getData('text');
+            if (!num) return;
+
+            // Create chip
+            const chip = document.createElement('div');
+            chip.className = 'bg-white border-2 border-green-500 text-green-800 rounded-lg px-4 py-3 text-2xl font-bold animate-popIn shadow-sm';
+            chip.textContent = num;
+            zone.appendChild(chip);
+
+            // Hide original
+            const src = document.querySelector(`[data-number="${num}"]`);
+            if (src) src.style.display = 'none';
+
+            setInfo(`Ditambah: ${num}.`); speak(num);
+        }
+        window.readSequence = function () {
+            const chips = document.querySelectorAll('#seqZone > div');
+            const seq = [...chips].map(d => d.textContent.trim());
+
+            if (seq.length === 0) {
+                setInfo("Kotak kosong. Seret nombor dulu."); speak("Seret nombor dahulu.");
+            } else {
+                const txt = `Urutan ialah: ${seq.join(', ')}.`;
+                setInfo(txt); speak(txt);
+                if (seq.length >= 5) triggerWin();
+            }
+        }
+
+        /* --- 3. Kira Objek (Epal) --- */
+        function setupAct3(content) {
+            setInfo("Klik kumpulan buah untuk kira.");
+            const counts = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20].sort(() => Math.random() - 0.5).slice(0, 6);
+
+            content.innerHTML = `
             <div class="w-full max-w-6xl text-center">
-                <h3 class="text-3xl font-bold text-purple-600 mb-6">🧮 Kira Objek</h3>
-                <div class="grid grid-cols-3 gap-4">
+                <h3 class="text-3xl font-bold text-purple-600 mb-4">🧮 Kira Objek</h3>
+                <div class="grid grid-cols-3 gap-2">
                     ${counts.map(c => `
-                        <button onclick="sayCount(${c}, this)" class="num-card btn-3d bg-purple-50 border-purple-200 p-4 rounded-xl flex flex-col items-center justify-center min-h-[140px]">
-                            <div class="text-2xl leading-none mb-2 tracking-tighter w-4/5 break-words">
+                        <button onclick="sayCount(${c}, this)" class="num-card btn-3d bg-purple-50 border-purple-200 p-2 rounded-xl flex flex-col items-center justify-center min-h-[100px]">
+                            <div class="text-xl leading-none mb-1 tracking-tighter w-full break-words">
                                 ${'🍎'.repeat(c)}
                             </div>
-                            <div class="text-sm font-bold text-purple-400 mt-2">Klik Kira</div>
+                            <div class="text-xs font-bold text-purple-400 mt-1">Klik Kira</div>
                         </button>
                     `).join('')}
                 </div>
             </div>
         `;
-    }
-    window.sayCount = function(c, el) {
-        document.querySelectorAll('.num-card').forEach(x => x.classList.remove('selected'));
-        el.classList.add('selected');
-        
-        // Visual text update inside button temporarily
-        const originalText = el.lastElementChild.textContent;
-        el.lastElementChild.textContent = `${c}`;
-        el.lastElementChild.classList.add('text-3xl', 'text-purple-700');
-        
-        const msg = `Ada ${words[c]} epal.`;
-        setInfo(msg); speak(msg);
-    }
+        }
+        window.sayCount = function (c, el) {
+            document.querySelectorAll('.num-card').forEach(x => x.classList.remove('selected'));
+            el.classList.add('selected');
 
-    /* --- 4. Padankan (Memory Style) --- */
-    let selectedMatch = null;
-    function setupAct4(content) {
-        setInfo("Padankan nombor dengan perkataannya.");
-        selectedMatch = null;
-        const pairs = [11, 15, 18, 20]; // subset for gameplay
-        
-        const left = pairs.map(n => ({type:'num', val:n, id: `n-${n}`}));
-        const right = pairs.map(n => ({type:'word', val:n, id: `w-${n}`}));
-        // Shuffle right side visual only, keep data logic simple
-        const allItems = [...left, ...right].sort(() => Math.random() - 0.5);
+            // Visual text update inside button temporarily
+            const originalText = el.lastElementChild.textContent;
+            el.lastElementChild.textContent = `${c}`;
+            el.lastElementChild.classList.add('text-3xl', 'text-purple-700');
 
-        content.innerHTML = `
+            const msg = `Ada ${words[c]} epal.`;
+            setInfo(msg); speak(msg);
+        }
+
+        /* --- 4. Padankan (Memory Style) --- */
+        let selectedMatch = null;
+        function setupAct4(content) {
+            setInfo("Padankan nombor dengan perkataannya.");
+            selectedMatch = null;
+            const pairs = [11, 15, 18, 20]; // subset for gameplay
+
+            const left = pairs.map(n => ({ type: 'num', val: n, id: `n-${n}` }));
+            const right = pairs.map(n => ({ type: 'word', val: n, id: `w-${n}` }));
+            // Shuffle right side visual only, keep data logic simple
+            const allItems = [...left, ...right].sort(() => Math.random() - 0.5);
+
+            content.innerHTML = `
             <div class="w-full max-w-4xl text-center">
-                <h3 class="text-3xl font-bold text-orange-600 mb-6">🔗 Padankan</h3>
-                <div class="grid grid-cols-4 gap-4">
+                <h3 class="text-3xl font-bold text-orange-600 mb-4">🔗 Padankan</h3>
+                <div class="grid grid-cols-4 gap-2">
                     ${allItems.map(item => `
                         <button onclick="pickMatch('${item.type}', ${item.val}, this)" 
-                            class="num-card btn-3d bg-orange-50 border-orange-200 text-orange-800 font-bold p-6 rounded-xl text-xl flex items-center justify-center min-h-[120px]">
-                            ${item.type === 'num' ? `<span class="text-5xl">${item.val}</span>` : `<span class="text-xl">${words[item.val]}</span>`}
+                            class="num-card btn-3d bg-orange-50 border-orange-200 text-orange-800 font-bold p-2 rounded-xl text-lg flex items-center justify-center min-h-[80px]">
+                            ${item.type === 'num' ? `<span class="text-3xl">${item.val}</span>` : `<span class="text-sm">${words[item.val]}</span>`}
                         </button>
                     `).join('')}
                 </div>
             </div>
         `;
-    }
-    window.pickMatch = function(type, val, el) {
-        if(el.classList.contains('correct') || el.classList.contains('selected')) return;
-
-        // Feedback Audio
-        const text = type === 'num' ? `Nombor ${val}` : words[val];
-        speak(text);
-
-        el.classList.add('selected');
-
-        if(!selectedMatch) {
-            // First pick
-            selectedMatch = {type, val, el};
-        } else {
-            // Second pick
-            const prev = selectedMatch;
-            
-            if(prev.val === val && prev.type !== type) {
-                // Match!
-                setTimeout(() => {
-                    prev.el.classList.remove('selected');
-                    el.classList.remove('selected');
-                    prev.el.classList.add('correct');
-                    el.classList.add('correct');
-                    triggerWin();
-                    speak("Pandai! Padanan betul.");
-                }, 500);
-            } else {
-                // Wrong
-                setTimeout(() => {
-                    prev.el.classList.remove('selected');
-                    el.classList.remove('selected');
-                    speak("Cuba lagi.");
-                }, 800);
-            }
-            selectedMatch = null;
         }
-    }
+        window.pickMatch = function (type, val, el) {
+            if (el.classList.contains('correct') || el.classList.contains('selected')) return;
 
-    /* --- 5. Urutan Slider --- */
-    let lastDetailText = "";
-    function setupAct5(content) {
-        setInfo("Gerakkan butang gelongsor.");
-        content.innerHTML = `
+            // Feedback Audio
+            const text = type === 'num' ? `Nombor ${val}` : words[val];
+            speak(text);
+
+            el.classList.add('selected');
+
+            if (!selectedMatch) {
+                // First pick
+                selectedMatch = { type, val, el };
+            } else {
+                // Second pick
+                const prev = selectedMatch;
+
+                if (prev.val === val && prev.type !== type) {
+                    // Match!
+                    setTimeout(() => {
+                        prev.el.classList.remove('selected');
+                        el.classList.remove('selected');
+                        prev.el.classList.add('correct');
+                        el.classList.add('correct');
+                        triggerWin();
+                        speak("Pandai! Padanan betul.");
+                    }, 500);
+                } else {
+                    // Wrong
+                    setTimeout(() => {
+                        prev.el.classList.remove('selected');
+                        el.classList.remove('selected');
+                        speak("Cuba lagi.");
+                    }, 800);
+                }
+                selectedMatch = null;
+            }
+        }
+
+        /* --- 5. Urutan Slider --- */
+        let lastDetailText = "";
+        function setupAct5(content) {
+            setInfo("Gerakkan butang gelongsor.");
+            content.innerHTML = `
             <div class="w-full max-w-3xl text-center">
-                <h3 class="text-3xl font-bold text-pink-600 mb-8">🧭 Urutan Slider 11-20</h3>
+                <h3 class="text-3xl font-bold text-pink-600 mb-4">🧭 Urutan Slider 11-20</h3>
                 
-                <div class="bg-pink-50 border-4 border-pink-200 rounded-3xl p-8 mb-6">
-                    <div class="flex items-center justify-between text-pink-400 font-bold mb-4 px-2">
+                <div class="bg-pink-50 border-4 border-pink-200 rounded-3xl p-4 mb-4">
+                    <div class="flex items-center justify-between text-pink-400 font-bold mb-2 px-2 text-sm">
                         <span>11</span><span>20</span>
                     </div>
                     
                     <input id="numSlider" type="range" min="11" max="20" value="11" 
-                           class="mb-8" oninput="onSlideChange(this.value)">
+                           class="mb-4" oninput="onSlideChange(this.value)">
 
-                    <div id="slideInfo" class="text-6xl font-black text-pink-500 animate-popIn min-h-[80px]">
+                    <div id="slideInfo" class="text-5xl font-black text-pink-500 animate-popIn min-h-[60px]">
                         11
                     </div>
-                    <div id="slideWord" class="text-2xl text-pink-400 font-bold min-h-[40px]">
+                    <div id="slideWord" class="text-xl text-pink-400 font-bold min-h-[30px]">
                         sebelas
                     </div>
                 </div>
 
                 <div class="flex gap-4 justify-center">
-                    <button onclick="speakDetail()" class="btn-3d bg-pink-500 text-white px-6 py-3 rounded-xl font-bold">ℹ️ Penerangan</button>
-                    <button onclick="playSequence(true)" class="btn-3d bg-pink-400 text-white px-6 py-3 rounded-xl font-bold">▶️ Naik</button>
+                    <button onclick="speakDetail()" class="btn-3d bg-pink-500 text-white px-4 py-2 rounded-xl font-bold text-sm">ℹ️ Info</button>
+                    <button onclick="playSequence(true)" class="btn-3d bg-pink-400 text-white px-4 py-2 rounded-xl font-bold text-sm">▶️ Naik</button>
                 </div>
             </div>
         `;
-        onSlideChange(11); // init
-    }
-    window.onSlideChange = function(v) {
-        v = parseInt(v);
-        document.getElementById('slideInfo').textContent = v;
-        document.getElementById('slideWord').textContent = words[v];
-        
-        const prev = v-1; const next = v+1;
-        lastDetailText = v===11 ? `Sebelas ialah permulaan. Selepasnya ${words[next]}.` :
-                         v===20 ? `Dua puluh ialah akhir. Sebelumnya ${words[prev]}.` :
-                         `${words[v]} datang selepas ${words[prev]} dan sebelum ${words[next]}.`;
-        
-        speak(`Nombor ${words[v]}`);
-    }
-    window.speakDetail = function() {
-        if(lastDetailText) {
-            setInfo(lastDetailText);
-            speak(lastDetailText);
+            onSlideChange(11); // init
         }
-    }
-    window.playSequence = async function(asc) {
-        const order = [11,12,13,14,15,16,17,18,19,20];
-        const slider = document.getElementById('numSlider');
-        
-        for(const n of order) {
-            slider.value = n;
-            onSlideChange(n);
-            await new Promise(r => setTimeout(r, 1200));
-        }
-        triggerWin();
-    }
+        window.onSlideChange = function (v) {
+            v = parseInt(v);
+            document.getElementById('slideInfo').textContent = v;
+            document.getElementById('slideWord').textContent = words[v];
 
-  </script>
+            const prev = v - 1; const next = v + 1;
+            lastDetailText = v === 11 ? `Sebelas ialah permulaan. Selepasnya ${words[next]}.` :
+                v === 20 ? `Dua puluh ialah akhir. Sebelumnya ${words[prev]}.` :
+                    `${words[v]} datang selepas ${words[prev]} dan sebelum ${words[next]}.`;
+
+            speak(`Nombor ${words[v]}`);
+        }
+        window.speakDetail = function () {
+            if (lastDetailText) {
+                setInfo(lastDetailText);
+                speak(lastDetailText);
+            }
+        }
+        window.playSequence = async function (asc) {
+            const order = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            const slider = document.getElementById('numSlider');
+
+            for (const n of order) {
+                slider.value = n;
+                onSlideChange(n);
+                await new Promise(r => setTimeout(r, 1200));
+            }
+            triggerWin();
+        }
+
+    </script>
 </body>
+
 </html>
